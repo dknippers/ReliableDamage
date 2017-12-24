@@ -3,21 +3,13 @@ class ScreenListener_RD extends UIScreenListener config(ReliableDamage);
 // This event is triggered after a screen is initialized
 event OnInit(UIScreen Screen)
 {
-    local X2DataTemplate DataTemplate;
-	
-	local X2AbilityTemplate AbilityTemplate;
-	local X2AbilityTemplateManager AbilityTemplateManager;
-
-	local XComGameState_CampaignSettings Settings;
+    local XComGameState_CampaignSettings Settings;
     local XComGameStateHistory History; 
-	
-	local X2AbilityToHitCalc_StandardAim StandardAim;
-	local X2AbilityToHitCalc_StandardAim_RD StandardAim_RD;		
 	
 	local XComGameState GameState;
 	local XComGameStateContext GameStateContext;
 
-	local bool bIsTactical, bSingleTargetEffectWasReplaced, bMultiTargetEffectWasReplaced;
+	local bool bIsTactical;
 
 	History = `XCOMHISTORY;
 	if(History == None) return;
@@ -35,10 +27,26 @@ event OnInit(UIScreen Screen)
     Settings = XComGameState_CampaignSettings(History.GetSingleGameStateObjectForClass(class'XComGameState_CampaignSettings'));
 	if(Settings == None) return;	
     
-    AbilityTemplateManager = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();    
-	if (AbilityTemplateManager == none) return;    
+	// Replace all Ability weapon effects by their ReliableDamage version.
+	ApplyReliableDamageEffectsToAbilities();
+
+	// Adjust all Weapon Templates to be more reliable (e.g., remove Spread)
+	ApplyReliableDamageEffectsToWeapons();
 
 	InitShotHUD(Screen);
+}
+
+private function ApplyReliableDamageEffectsToAbilities()
+{
+	local X2AbilityTemplateManager AbilityTemplateManager;
+	local X2AbilityTemplate AbilityTemplate;	
+	local X2DataTemplate DataTemplate;
+	local X2AbilityToHitCalc_StandardAim StandardAim;
+	local X2AbilityToHitCalc_StandardAim_RD StandardAim_RD;		
+	local bool bSingleTargetEffectWasReplaced, bMultiTargetEffectWasReplaced;
+
+	AbilityTemplateManager = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();    
+	if (AbilityTemplateManager == none) return;    
 
 	// Replace all Abilities that use StandardAim		
 	foreach AbilityTemplateManager.IterateTemplates(DataTemplate, None)
@@ -141,6 +149,11 @@ private function bool ReplaceWeaponEffects(X2AbilityTemplate AbilityTemplate, bo
 		ApplyWeaponDamage_RD = new class'X2Effect_ApplyWeaponDamage_RD';		
 		ApplyWeaponDamage_RD.Clone(ApplyWeaponDamage);
 
+		// We remove damage spread from the weapon effect as well, it only adds silly RNG.
+		// Note this does not remove damage spread from weapons themselves, that is done by modifying
+		// the weapon templates rather than the damage effects.
+		ApplyWeaponDamage_RD.EffectDamageValue.Spread = 0;
+
 		// Disable damage from the original Weapon Effect.			
 		// This is done as a workaround for the fact we cannot actually
 		// remove it from the list of TargetEffects						
@@ -151,7 +164,12 @@ private function bool ReplaceWeaponEffects(X2AbilityTemplate AbilityTemplate, bo
 		ApplyWeaponDamage.bApplyOnMiss        = false;		
 		ApplyWeaponDamage.bApplyToWorldOnHit  = false;
 		ApplyWeaponDamage.bApplyToWorldOnMiss = false;		
-		ApplyWeaponDamage.TargetConditions.Length = 0;
+		ApplyWeaponDamage.TargetConditions.Length = 0;		
+
+		if(ApplyWeaponDamage.EffectDamageValue.Spread > 0) 
+		{
+			`Log("Found Spread of " @ ApplyWeaponDamage.EffectDamageValue.Spread @ "with ability" @ AbilityTemplate.DataName);	
+		}
 		
 		if(bIsSingle)	AbilityTemplate.AddTargetEffect(ApplyWeaponDamage_RD);			
 		else			AbilityTemplate.AddMultiTargetEffect(ApplyWeaponDamage_RD);				
@@ -225,6 +243,30 @@ private function FixKnockbackEffects(X2AbilityTemplate AbilityTemplate, bool bIs
 		if(bIsSingle)	AbilityTemplate.AddTargetEffect(Knockback);			
 		else			AbilityTemplate.AddMultiTargetEffect(Knockback);				
 	}					
+}
+
+private function ApplyReliableDamageEffectsToWeapons()
+{
+	local X2ItemTemplateManager ItemTemplateManager;
+	local X2WeaponTemplate WeaponTemplate;	
+	local X2DataTemplate DataTemplate;	
+
+	ItemTemplateManager = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
+	if (ItemTemplateManager == none) return;    
+
+	// Loop through all weapons in the game
+	foreach ItemTemplateManager.IterateTemplates(DataTemplate, None)
+	{		
+		WeaponTemplate = X2WeaponTemplate(DataTemplate);
+		if(WeaponTemplate == None) continue;
+
+		// Remove Damage Spread
+		if(WeaponTemplate.BaseDamage.Spread > 0) 
+		{
+			`Log(WeaponTemplate.DataName @ ": Spread " @ WeaponTemplate.BaseDamage.Spread @ "-> 0");
+			WeaponTemplate.BaseDamage.Spread = 0;
+		}		
+	}
 }
 
 // Applies our custom ShotHUD to the Screen if it was not done already

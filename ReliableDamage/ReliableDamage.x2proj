@@ -73,9 +73,6 @@ I have heard from issues with these mods:
     <Folder Include="Src\ReliableDamage\Classes\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Config\XComGameData_WeaponData.ini">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="Config\XComReliableDamage.ini">
       <SubType>Content</SubType>
     </Content>
