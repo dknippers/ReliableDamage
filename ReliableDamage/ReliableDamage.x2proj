@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Default" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Guid>888f4328-9426-4acd-b73f-8d04ce49eea8</Guid>
+    <Name>Reliable Damage</Name>
+    <Description>Makes weapon damage as reliable as possible. 
+
+[h1]Features[/h1]
+[list]
+[*] Every shot has a 100% hit chance, but lowered damage so the expected value of the shot is unchanged.
+[*] Weapon spread is removed (can be reverted in Config\XComGameData_WeaponData.ini)
+[*] Critical damage / Graze shots are removed but their effects are incorporated in every shot instead (i.e., 25% chance to crit for an additional 4 damage would simply do +1 damage on each shot instead). This is configurable, both types of shots can be restored to normal if desired.
+[*] Abilities like Viper's Bind can still miss (as for example the pull effect would be heavily OP with 100%) 
+
+[*] The aim is to have the expected value (chance * dmg) be the damage applied on every shot. 
+[*] Example; a 4 dmg shot with a 50% chance to hit will now have a 100% chance to do 2 damage. 
+
+[*] When &lt;hit_chance&gt; * &lt;weapon_damage&gt; is a fractional number, we will roll for the final integer value to deal as damage, with appropriate probabilities. 
+[*] Example: a 4 dmg shot with a 60% chance to hit means the expected value would be 4 * 0.6 = 2.4. We convert this to a 60% chance of 2 damage and a 40% chance of 3 and will roll for the resulting value. 
+
+[*] The shot HUD is adjusted to display the "expected value" of the shot, which can be a fractional number. 
+[*] Example; when the shot HUD display "3.25", it means there is a 75% chance to do 3 damage and a 25% chance to do 4 damage. 
+
+[*] For more information on implementation details look through the source, I commented as much as I could. 
+[*] Log entries for every shot are written to the Launch.log file, with information on how exactly the damage of a shot was calculated (can be found in &lt;USER_FOLDER&gt;\Documents\My Games\XCOM2\XComGame\Logs\, CTRL+F for "ReliableDamage"). 
+[/list]
+
+[h1]Installation directory[/h1]
+This mod is installed to \SteamApps\workshop\content\268500\688497616
+
+[h1]Configuration[/h1]
+Configuration options can be set in Config\XComReliableDamage.ini.
+That file also contains a full description of each option, so look there for more in depth information.
+[list]
+[*] [b]RoundingEnabled[/b] - Rounds all damage values to whole numbers. 0 to disable (default), 1 to enable.
+[*] [b]OverwatchRemovalMinimumDamage[/b] - Minimum damage required to cancel Overwatch. Default = 0 (all shots that hit will cancel Overwatch).
+[*] [b]OverwatchRemovalMinimumHitChance[/b] - Minimum hit chance required to cancel Overwatch. Default = 60 (only shots of 60% or higher will cancel Overwatch).
+[*] [b]KeepCrit[/b] - Keep Critical Shots like in regular XCOM. 0 to disable (default), 1 to enable.
+[*] [b]KeepGraze[/b] - Keep Graze Shots (Dodge) like in regular XCOM. 0 to disable (default), 1 to enable
+[/list]
+
+[h1]Compatibility[/h1]
+I have played with my mod and many others simultaneously, without any compatibility issues. 
+These mods include: 
+[list]
+[*] Numeric Health Display 
+[*] Free Camera Rotation 
+[*] Stop Wasting My Time 
+[*] Evac All 
+[*] Wound Recalibration 
+[*] Cost Based Ability Colors 
+[*] Gotcha (Flank Preview Evolved) 
+[*] Instant Avenger Menus 
+[/list]
+
+[h1]Incompatibility[/h1]
+Any mods that override UITacticalHUD_ShotHUD might cause issues. 
+I have heard from issues with these mods: 
+[list]
+[*] Perfect Information (FPS drops)
+[/list]</Description>
+    <SteamPublishID>0</SteamPublishID>
+    <AssemblyName>ReliableDamage</AssemblyName>
+    <RootNamespace>ReliableDamage</RootNamespace>
+    <ProjectGuid>{59de28d7-5f1b-4b25-8e15-9903ec50c38a}</ProjectGuid>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Config\" />
+    <Folder Include="Content\" />
+    <Folder Include="Localization\" />
+    <Folder Include="Src\" />
+    <Folder Include="Src\ReliableDamage\" />
+    <Folder Include="Src\ReliableDamage\Classes\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Config\XComGameData_WeaponData.ini">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Config\XComReliableDamage.ini">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="ReadMe.txt" />
+    <Content Include="ModPreview.jpg" />
+    <Content Include="Config\XComEditor.ini" />
+    <Content Include="Config\XComEngine.ini" />
+    <Content Include="Config\XComGame.ini" />
+    <Content Include="Localization\XComGame.int" />
+    <Content Include="Src\ReliableDamage\Classes\ScreenListener_RD.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ReliableDamage\Classes\UITacticalHUD_RD.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ReliableDamage\Classes\UITacticalHUD_ShotHUD_RD.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ReliableDamage\Classes\X2AbilityToHitCalc_StandardAim_RD.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ReliableDamage\Classes\X2DownloadableContentInfo_RD.uc" />
+    <Content Include="Src\ReliableDamage\Classes\X2Effect_ApplyWeaponDamage_RD.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ReliableDamage\Classes\X2TargetingMethod_OverTheShoulder_RD.uc">
+      <SubType>Content</SubType>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildLocalExtensionPath)\XCOM2.targets" />
+</Project>
