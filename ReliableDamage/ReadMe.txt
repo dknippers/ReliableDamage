@@ -1,4 +1,10 @@
-﻿This mod attempts to remove the various RNG elements present in the game when you take a shot. Mainly, all shots will now hit but deal the expected value of the shot (= hit chance * damage) as damage. That value is much lower than the full damage, obviously. This averages out to the exact same amount of total damage that is delivered, just without the RNG of critting / hitting / grazing / missing.
+﻿[h1]Description[/h1]
+This mod attempts to remove the various RNG elements present in the game when you take a shot. Mainly, all shots will now hit but deal the expected value of the shot (= hit chance * damage) as damage. That value is much lower than the full damage, obviously. This averages out to the exact same amount of total damage that is delivered, just without the RNG of critting / hitting / grazing / missing.
+
+[h1]XCOM 2: War of the Chosen[/h1]
+This mod has NOT been updated for War of the Chosen. I do not own the game, and do not know if I will purchase it any time soon and have time to then update this mod. I actually do not know if it works with WotC or not, but presumably it does not.
+
+Therefore, if you want this mod to be updated and have some programming skills yourself, by all means take my source code (should be in this mod's workshop folder on disk) and update it for War of the Chosen. Then you can just upload it as a mod of your own. I'd appreciate it if you mention this mod as inspiration in that case :) Let me know, and I'll link it from here as well so more people can find it.
 
 [h1]Features[/h1]
 [list]
